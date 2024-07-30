@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<manifest>
+  <control namespace="MyCompany" constructor="CustomCalendarControl" version="0.0.1" display-name-key="CustomCalendarControl" description-key="CustomCalendarControl description" control-type="standard">
+    <external-service-usage enabled="false">
+    </external-service-usage>
+    <property name="sampleProperty" display-name-key="Property_Display_Key" description-key="Property_Desc_Key" of-type="SingleLine.Text" usage="bound" required="true" />
+    
+    <resources>
+      <code path="CustomCalendarControl/index.ts" order="1"/>
+      <css path="css/CustomCalendarControl.css" order="1" />
+      <!-- You can add a resx resource for localization if needed
+      <resx path="strings/CustomCalendarControl.1033.resx" version="1.0.0" />
+      -->
+    </resources>
+    
+    <!-- UNCOMMENT TO ENABLE THE SPECIFIED API
+    <feature-usage>
+      <uses-feature name="Device.captureAudio" required="true" />
+      <uses-feature name="Device.captureImage" required="true" />
+      <uses-feature name="Device.captureVideo" required="true" />
+      <uses-feature name="Device.getBarcodeValue" required="true" />
+      <uses-feature name="Device.getCurrentPosition" required="true" />
+      <uses-feature name="Device.pickFile" required="true" />
+      <uses-feature name="Utility" required="true" />
+      <uses-feature name="WebAPI" required="true" />
+    </feature-usage>
+    -->
+  </control>
+</manifest>

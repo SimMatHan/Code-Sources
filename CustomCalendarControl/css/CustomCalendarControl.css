@@ -1,0 +1,69 @@
+/* Basic styles for the calendar container */
+#calendar {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9; /* Light background */
+    border: 1px solid #ccc; /* Light border */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+/* Header styling */
+.fc-toolbar {
+    background-color: #0078d4; /* CRM primary color */
+    color: #fff; /* White text */
+    padding: 10px;
+    border-radius: 8px 8px 0 0; /* Rounded top corners */
+}
+
+.fc-toolbar .fc-button {
+    background-color: #005a9e; /* CRM darker color */
+    border: none; /* Remove borders */
+    color: #fff; /* White text */
+}
+
+.fc-toolbar .fc-button:hover {
+    background-color: #004578; /* Even darker on hover */
+}
+
+/* Day grid styling */
+.fc-daygrid-day {
+    background-color: #fff; /* White background */
+    border: 1px solid #e6e6e6; /* Light grey border */
+}
+
+.fc-daygrid-day:hover {
+    background-color: #f0f0f0; /* Slightly darker on hover */
+}
+
+/* Event styling */
+.fc-event {
+    background-color: #0078d4; /* CRM primary color */
+    border: none; /* Remove borders */
+    color: #fff; /* White text */
+    padding: 5px;
+    border-radius: 4px; /* Rounded corners */
+}
+
+.fc-event:hover {
+    background-color: #005a9e; /* Darker on hover */
+}
+
+/* Current day styling */
+.fc-day-today {
+    background-color: #d6e4f3; /* Light blue background */
+}
+
+.fc-day-past {
+    color: #888; /* Grey text for past days */
+}
+
+.fc-day-future {
+    color: #000; /* Black text for future days */
+}
+
+/* Make the calendar full width */
+.fc {
+    width: 100%;
+}
