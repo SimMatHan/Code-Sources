@@ -4,6 +4,7 @@ import Home from './components/Home';
 import Header from './components/Header';
 import GlobalStyle from './globalStyles';
 import UserIdentification from './components/UserIdentification';
+import RequestForm from './components/RequestForm';
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -44,6 +45,7 @@ const App = () => {
         <Header onReset={handleReset} />
         <Routes>
           <Route path="/" element={<Home user={user} drinks={drinks} setDrinks={setDrinks} />} />
+          <Route path="/requests" element={<RequestForm user={user} />} />
         </Routes>
       </Router>
     </>
