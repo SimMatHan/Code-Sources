@@ -5,7 +5,10 @@ const requestsCollection = collection(db, "requests");
 const usersCollection = collection(db, "users");
 
 export const createRequest = async (request) => {
-  await addDoc(requestsCollection, request);
+  await addDoc(requestsCollection, {
+    ...request,
+    timestamp: new Date().toISOString()
+  });
 };
 
 export const getRequests = async (recipient) => {
