@@ -1,50 +1,44 @@
 import React, { useState } from 'react';
-import './UserIdentification.css';
-import { createUser } from '../services/requestService';
+import { getFirestore, collection, query, where, getDocs, addDoc } from 'firebase/firestore';
 
-const UserIdentification = ({ setUser }) => {
-  const [name, setName] = useState('');
+const db = getFirestore();
+
+const UserIdentification = ({ onSubmit }) => {
+  const [username, setUsername] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = async () => {
-    if (!name) {
-      setError('Please enter a name.');
-      return;
-    }
+  const checkUsernameExists = async (username) => {
+    const usersRef = collection(db, 'users');
+    const q = query(usersRef, where('username', '==', username));
+    const querySnapshot = await getDocs(q);
+    return !querySnapshot.empty;
+  };
 
-    const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
-    if (storedUsers.includes(name)) {
-      setError('This username is already taken. Please choose another one.');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const exists = await checkUsernameExists(username);
+    if (exists) {
+      setError('Username already taken. Please choose another one.');
     } else {
-      try {
-        await createUser({ name });
-        localStorage.setItem('username', name);
-        storedUsers.push(name);
-        localStorage.setItem('users', JSON.stringify(storedUsers));
-        setUser(name);
-      } catch (error) {
-        setError('Failed to create user.');
-        console.error("Error creating user:", error);
-      }
+      await addDoc(collection(db, 'users'), { username });
+      onSubmit(username);
     }
   };
 
   return (
-    <div className="user-identification-container">
-      <h2>Enter your name</h2>
-      <input
-        className="input"
-        type="text"
-        value={name}
-        onChange={(e) => {
-          setName(e.target.value);
-          setError('');
-        }}
-        placeholder="Your name"
-      />
-      <button className="button" onClick={handleSubmit}>Submit</button>
-      {error && <p className="error">{error}</p>}
-    </div>
+    <form onSubmit={handleSubmit}>
+      <label>
+        Enter your username:
+        <input
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+        />
+      </label>
+      <button type="submit">Submit</button>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+    </form>
   );
 };
 

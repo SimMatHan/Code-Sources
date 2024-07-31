@@ -1,28 +1,45 @@
-const functions = require('firebase-functions');
-const admin = require('firebase-admin');
-const { getFirestore } = require('firebase-admin/firestore');
+import React, { useState } from 'react';
+import { getFirestore, collection, query, where, getDocs, addDoc } from 'firebase/firestore';
 
-admin.initializeApp();
 const db = getFirestore();
 
-exports.deleteOldRequests = functions.pubsub.schedule('0 0,12 * * *')
-  .timeZone('Europe/Copenhagen') // Ensure the time zone is set to Danish time
-  .onRun(async (context) => {
-    const now = new Date();
-    const twelveHoursAgo = new Date(now.getTime() - 12 * 60 * 60 * 1000);
-    const snapshot = await db.collection('requests').where('timestamp', '<', twelveHoursAgo.toISOString()).get();
+const UserIdentification = ({ onSubmit }) => {
+  const [username, setUsername] = useState('');
+  const [error, setError] = useState('');
 
-    if (snapshot.empty) {
-      console.log('No matching documents.');
-      return null;
+  const checkUsernameExists = async (username) => {
+    const usersRef = collection(db, 'users');
+    const q = query(usersRef, where('username', '==', username));
+    const querySnapshot = await getDocs(q);
+    return !querySnapshot.empty;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const exists = await checkUsernameExists(username);
+    if (exists) {
+      setError('Username already taken. Please choose another one.');
+    } else {
+      await addDoc(collection(db, 'users'), { username });
+      onSubmit(username);
     }
+  };
 
-    const batch = db.batch();
-    snapshot.docs.forEach(doc => {
-      batch.delete(doc.ref);
-    });
+  return (
+    <form onSubmit={handleSubmit}>
+      <label>
+        Enter your username:
+        <input
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+        />
+      </label>
+      <button type="submit">Submit</button>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+    </form>
+  );
+};
 
-    await batch.commit();
-    console.log('Deleted old requests.');
-    return null;
-  });
+export default UserIdentification;

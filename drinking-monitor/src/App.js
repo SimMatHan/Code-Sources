@@ -1,21 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Home from './components/Home';
-import Header from './components/Header';
-import GlobalStyle from './globalStyles';
-import UserIdentification from './components/UserIdentification';
-import RequestForm from './components/RequestForm';
+import GlobalStyle from './GlobalStyle';
+import Header from './Header';
+import Home from './Home';
+import RequestForm from './RequestForm';
+import UserIdentification from './UserIdentification';
 
 const App = () => {
   const [user, setUser] = useState(null);
   const [drinks, setDrinks] = useState({});
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('username');
-    if (storedUser) {
-      setUser(storedUser);
-    }
-
     const storedData = JSON.parse(localStorage.getItem('drinkData'));
     if (storedData) {
       const now = new Date().getTime();
@@ -27,15 +22,32 @@ const App = () => {
         localStorage.removeItem('drinkData');
       }
     }
+
+    const storedUser = localStorage.getItem('username');
+    if (storedUser) {
+      setUser(storedUser);
+    }
   }, []);
 
   const handleReset = () => {
     localStorage.removeItem('drinkData');
+    localStorage.removeItem('username');
     setDrinks({});
+    setUser(null);
+  };
+
+  const handleUserSubmit = (username) => {
+    const existingUser = localStorage.getItem('username');
+    if (existingUser) {
+      alert('Username already taken. Please choose another one.');
+    } else {
+      localStorage.setItem('username', username);
+      setUser(username);
+    }
   };
 
   if (!user) {
-    return <UserIdentification setUser={setUser} />;
+    return <UserIdentification onSubmit={handleUserSubmit} />;
   }
 
   return (
