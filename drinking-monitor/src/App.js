@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { onAuthStateChanged, signInAnonymously, updateProfile } from 'firebase/auth';
-import { getFunctions, httpsCallable } from 'firebase/functions';
+import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import GlobalStyle from './globalStyles';
 import Header from './components/Header';
 import Home from './components/Home';
 import RequestForm from './components/RequestForm';
 import UserIdentification from './components/UserIdentification';
-import { auth } from './firebaseConfig';
+import { auth, db } from './firebaseConfig';
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -26,9 +26,14 @@ const App = () => {
       }
     }
 
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        setUser({ uid: user.uid, displayName: user.displayName });
+        // Fetch the username from Firestore
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setUser({ uid: user.uid, displayName: userData.username });
+        }
       } else {
         setUser(null);
       }
@@ -42,32 +47,46 @@ const App = () => {
     setDrinks({});
   };
 
-  const handleUserSubmit = async (username) => {
+  const handleUserSubmit = async (email, password, username) => {
     try {
-      const userCredential = await signInAnonymously(auth);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      await updateProfile(user, { displayName: username });
+      // Save user information in Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        username,
+        email,
+        uid: user.uid,
+      });
 
-      // Call the signInUser function with username and UID
-      const functions = getFunctions();
-      const signInUser = httpsCallable(functions, 'signInUser');
-      const result = await signInUser({ username, uid: user.uid });
-
-      if (result.data.message === 'User created successfully.' || result.data.username) {
-        localStorage.setItem('username', username);
-        setUser({ uid: user.uid, displayName: username });
-      } else {
-        throw new Error('Failed to create or sign in user');
-      }
+      localStorage.setItem('username', username);
+      setUser({ uid: user.uid, displayName: username });
     } catch (error) {
       alert('Failed to create user. Please try again.');
       console.error('Error:', error);
     }
   };
 
+  const handleUserSignIn = async (email, password) => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Fetch the username from Firestore
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        localStorage.setItem('username', userData.username);
+        setUser({ uid: user.uid, displayName: userData.username });
+      }
+    } catch (error) {
+      alert('Failed to sign in. Please try again.');
+      console.error('Error:', error);
+    }
+  };
+
   if (!user) {
-    return <UserIdentification onSubmit={handleUserSubmit} />;
+    return <UserIdentification onSubmit={handleUserSubmit} onSignIn={handleUserSignIn} />;
   }
 
   return (

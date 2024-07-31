@@ -64,6 +64,12 @@
   outline: none;
 }
 
+.button-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Space between buttons */
+}
+
 .button {
   width: 100%;
   padding: 12px;
@@ -79,6 +85,26 @@
 
 .button:hover {
   background-color: #005bb5;
+}
+
+.button-call-to-action {
+  background-color: #ff5733; /* Call to action color */
+}
+
+.button-call-to-action:hover {
+  background-color: #e44d26;
+}
+
+.forgot-password-link {
+  margin-top: 10px;
+  color: #0071e3;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: underline;
+}
+
+.forgot-password-link:hover {
+  color: #005bb5;
 }
 
 /* Responsive styling */

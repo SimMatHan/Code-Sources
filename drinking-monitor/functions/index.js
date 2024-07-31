@@ -27,45 +27,6 @@ exports.deleteOldRequests = functions.pubsub.schedule('0 0,12 * * *')
     return null;
   });
 
-exports.createUser = functions.https.onCall(async (data, context) => {
-  const { username, uid } = data;
-
-  if (!username || !uid) {
-    throw new functions.https.HttpsError('invalid-argument', 'The function must be called with a username and uid.');
-  }
-
-  const usersRef = db.collection('users');
-  const querySnapshot = await usersRef.where('username', '==', username).get();
-
-  if (!querySnapshot.empty) {
-    throw new functions.https.HttpsError('already-exists', 'The username already exists.');
-  }
-
-  await usersRef.add({ username, uid });
-  return { message: 'User created successfully.' };
-});
-
-exports.signInUser = functions.https.onCall(async (data, context) => {
-  const { username, uid } = data;
-
-  if (!username || !uid) {
-    throw new functions.https.HttpsError('invalid-argument', 'The function must be called with a username and uid.');
-  }
-
-  const usersRef = db.collection('users');
-  const querySnapshot = await usersRef.where('username', '==', username).get();
-
-  if (querySnapshot.empty) {
-    // User does not exist, create a new user
-    await usersRef.add({ username, uid });
-    return { message: 'User created successfully.', username };
-  } else {
-    // User exists, return the user data
-    const user = querySnapshot.docs[0].data();
-    return user;
-  }
-});
-
 exports.listUsers = functions.https.onCall(async (data, context) => {
   const usersRef = db.collection('users');
   const querySnapshot = await usersRef.get();
