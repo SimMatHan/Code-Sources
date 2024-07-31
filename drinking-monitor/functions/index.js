@@ -44,3 +44,38 @@ exports.createUser = functions.https.onCall(async (data, context) => {
   await usersRef.add({ username });
   return { message: 'User created successfully.' };
 });
+
+exports.signInUser = functions.https.onCall(async (data, context) => {
+  const { username } = data;
+
+  if (!username) {
+    throw new functions.https.HttpsError('invalid-argument', 'The function must be called with a username.');
+  }
+
+  const usersRef = db.collection('users');
+  const querySnapshot = await usersRef.where('username', '==', username).get();
+
+  if (querySnapshot.empty) {
+    // User does not exist, create a new user
+    await usersRef.add({ username });
+    return { message: 'User created successfully.', username };
+  } else {
+    // User exists, return the user data
+    const user = querySnapshot.docs[0].data();
+    return user;
+  }
+});
+
+
+// New function to list users
+exports.listUsers = functions.https.onCall(async (data, context) => {
+  const usersRef = db.collection('users');
+  const querySnapshot = await usersRef.get();
+
+  const users = [];
+  querySnapshot.forEach(doc => {
+    users.push({ id: doc.id, ...doc.data() });
+  });
+
+  return users;
+});

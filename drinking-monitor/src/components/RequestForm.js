@@ -20,6 +20,7 @@ const RequestForm = ({ user }) => {
     const fetchUsers = async () => {
       try {
         const fetchedUsers = await getUsers();
+        console.log("Fetched users:", fetchedUsers);
         setUsers(fetchedUsers);
       } catch (error) {
         console.error("Failed to fetch users:", error);
@@ -30,7 +31,8 @@ const RequestForm = ({ user }) => {
     fetchUsers();
   }, [user]);
 
-  const sendRequest = async () => {
+  const sendRequest = async (e) => {
+    e.preventDefault();
     try {
       await createRequest({ sender: user, recipient, message });
       setMessage('');
@@ -44,30 +46,39 @@ const RequestForm = ({ user }) => {
 
   return (
     <div>
-      <h2>Send a Request</h2>
-      <select value={recipient} onChange={(e) => setRecipient(e.target.value)}>
-        <option value="">Select a user</option>
-        {users.map((user) => (
-          <option key={user.name} value={user.name}>
-            {user.name}
-          </option>
-        ))}
-      </select>
-      <input
-        type="text"
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder="Your message"
-      />
-      <button onClick={sendRequest}>Send Request</button>
-      <h3>Received Requests</h3>
-      <ul>
-        {requests.map((req, index) => (
-          <li key={index}>
-            {req.sender} sent: {req.message}
-          </li>
-        ))}
-      </ul>
+      <form onSubmit={sendRequest}>
+        <label>
+          Message:
+          <input
+            type="text"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+          />
+        </label>
+        <label>
+          Select a user:
+          <select
+            value={recipient}
+            onChange={(e) => setRecipient(e.target.value)}
+          >
+            <option value="">Select a user</option>
+            {users.map((user) => (
+              <option key={user.id} value={user.username}>
+                {user.username}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button type="submit">Send Request</button>
+      </form>
+      <div>
+        <h2>Requests</h2>
+        <ul>
+          {requests.map((request) => (
+            <li key={request.id}>{request.message}</li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };

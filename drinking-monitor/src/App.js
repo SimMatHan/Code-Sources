@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { onAuthStateChanged, signInAnonymously, updateProfile } from 'firebase/auth';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import GlobalStyle from './globalStyles';
 import Header from './components/Header';
 import Home from './components/Home';
 import RequestForm from './components/RequestForm';
 import UserIdentification from './components/UserIdentification';
+import { auth } from './firebaseConfig';
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -23,26 +26,43 @@ const App = () => {
       }
     }
 
-    const storedUser = localStorage.getItem('username');
-    if (storedUser) {
-      setUser(storedUser);
-    }
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user.displayName || user.uid);
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const handleReset = () => {
     localStorage.removeItem('drinkData');
-    localStorage.removeItem('username');
     setDrinks({});
-    setUser(null);
   };
 
-  const handleUserSubmit = (username) => {
-    const existingUser = localStorage.getItem('username');
-    if (existingUser) {
-      alert('Username already taken. Please choose another one.');
-    } else {
-      localStorage.setItem('username', username);
-      setUser(username);
+  const handleUserSubmit = async (username) => {
+    try {
+      const userCredential = await signInAnonymously(auth);
+      const user = userCredential.user;
+
+      await updateProfile(user, { displayName: username });
+
+      // Call the signInUser function
+      const functions = getFunctions();
+      const signInUser = httpsCallable(functions, 'signInUser');
+      const result = await signInUser({ username });
+
+      if (result.data.message === 'User created successfully.' || result.data.username) {
+        localStorage.setItem('username', username);
+        setUser(username);
+      } else {
+        throw new Error('Failed to create or sign in user');
+      }
+    } catch (error) {
+      alert('Failed to create user. Please try again.');
+      console.error('Error:', error);
     }
   };
 
