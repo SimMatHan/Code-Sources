@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import GlobalStyle from './GlobalStyle';
-import Header from './Header';
-import Home from './Home';
-import RequestForm from './RequestForm';
-import UserIdentification from './UserIdentification';
+import GlobalStyle from './globalStyles';
+import Header from './components/Header';
+import Home from './components/Home';
+import RequestForm from './components/RequestForm';
+import UserIdentification from './components/UserIdentification';
 
 const App = () => {
   const [user, setUser] = useState(null);
