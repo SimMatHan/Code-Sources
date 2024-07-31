@@ -82,7 +82,10 @@ const RequestForm = ({ user }) => {
         <h2>Requests</h2>
         <ul className="request-list">
           {requests.map((request) => (
-            <li key={request.id} className="request-item">{request.message}</li>
+            <li key={request.id} className="request-item">
+              <strong>From:</strong> {request.sender.username} <br />
+              <strong>Message:</strong> {request.message}
+            </li>
           ))}
         </ul>
       </div>

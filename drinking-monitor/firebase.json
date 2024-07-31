@@ -13,8 +13,8 @@
       "predeploy": []
     }
   ],
-  "hosting": {
-    "public": "build",
+"hosting": {
+    "public": "maintenance",
     "ignore": [
       "firebase.json",
       "**/.*",
