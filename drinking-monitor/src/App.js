@@ -28,7 +28,7 @@ const App = () => {
 
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        setUser(user.displayName || user.uid);
+        setUser({ uid: user.uid, displayName: user.displayName });
       } else {
         setUser(null);
       }
@@ -49,14 +49,14 @@ const App = () => {
 
       await updateProfile(user, { displayName: username });
 
-      // Call the signInUser function
+      // Call the signInUser function with username and UID
       const functions = getFunctions();
       const signInUser = httpsCallable(functions, 'signInUser');
-      const result = await signInUser({ username });
+      const result = await signInUser({ username, uid: user.uid });
 
       if (result.data.message === 'User created successfully.' || result.data.username) {
         localStorage.setItem('username', username);
-        setUser(username);
+        setUser({ uid: user.uid, displayName: username });
       } else {
         throw new Error('Failed to create or sign in user');
       }

@@ -6,7 +6,7 @@ admin.initializeApp();
 const db = getFirestore();
 
 exports.deleteOldRequests = functions.pubsub.schedule('0 0,12 * * *')
-  .timeZone('Europe/Copenhagen') // Ensure the time zone is set to Danish time
+  .timeZone('Europe/Copenhagen')
   .onRun(async (context) => {
     const now = new Date();
     const twelveHoursAgo = new Date(now.getTime() - 12 * 60 * 60 * 1000);
@@ -28,10 +28,10 @@ exports.deleteOldRequests = functions.pubsub.schedule('0 0,12 * * *')
   });
 
 exports.createUser = functions.https.onCall(async (data, context) => {
-  const { username } = data;
+  const { username, uid } = data;
 
-  if (!username) {
-    throw new functions.https.HttpsError('invalid-argument', 'The function must be called with a username.');
+  if (!username || !uid) {
+    throw new functions.https.HttpsError('invalid-argument', 'The function must be called with a username and uid.');
   }
 
   const usersRef = db.collection('users');
@@ -41,15 +41,15 @@ exports.createUser = functions.https.onCall(async (data, context) => {
     throw new functions.https.HttpsError('already-exists', 'The username already exists.');
   }
 
-  await usersRef.add({ username });
+  await usersRef.add({ username, uid });
   return { message: 'User created successfully.' };
 });
 
 exports.signInUser = functions.https.onCall(async (data, context) => {
-  const { username } = data;
+  const { username, uid } = data;
 
-  if (!username) {
-    throw new functions.https.HttpsError('invalid-argument', 'The function must be called with a username.');
+  if (!username || !uid) {
+    throw new functions.https.HttpsError('invalid-argument', 'The function must be called with a username and uid.');
   }
 
   const usersRef = db.collection('users');
@@ -57,7 +57,7 @@ exports.signInUser = functions.https.onCall(async (data, context) => {
 
   if (querySnapshot.empty) {
     // User does not exist, create a new user
-    await usersRef.add({ username });
+    await usersRef.add({ username, uid });
     return { message: 'User created successfully.', username };
   } else {
     // User exists, return the user data
@@ -66,8 +66,6 @@ exports.signInUser = functions.https.onCall(async (data, context) => {
   }
 });
 
-
-// New function to list users
 exports.listUsers = functions.https.onCall(async (data, context) => {
   const usersRef = db.collection('users');
   const querySnapshot = await usersRef.get();

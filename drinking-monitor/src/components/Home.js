@@ -46,7 +46,7 @@ const Home = ({ user, drinks, setDrinks }) => {
 
   return (
     <div className="home-container">
-      <h2>Welcome, {user}</h2>
+      <h2>Welcome, {user.displayName || 'Guest'}</h2> {/* Use user.displayName */}
       <div className="drink-counter">
         Total Drinks: {Object.values(drinks).reduce((a, b) => a + b, 0)}
       </div>

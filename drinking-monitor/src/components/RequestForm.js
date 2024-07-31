@@ -10,7 +10,7 @@ const RequestForm = ({ user }) => {
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const fetchedRequests = await getRequests(user);
+        const fetchedRequests = await getRequests(user.displayName || user.uid);
         setRequests(fetchedRequests);
       } catch (error) {
         console.error("Failed to fetch requests:", error);
@@ -34,10 +34,14 @@ const RequestForm = ({ user }) => {
   const sendRequest = async (e) => {
     e.preventDefault();
     try {
+      if (!user || !user.displayName) {
+        throw new Error("Invalid sender information");
+      }
+
       await createRequest({ sender: user, recipient, message });
       setMessage('');
       setRecipient('');
-      const fetchedRequests = await getRequests(user);
+      const fetchedRequests = await getRequests(user.displayName);
       setRequests(fetchedRequests);
     } catch (error) {
       console.error("Failed to send request:", error);
