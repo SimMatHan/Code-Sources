@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createRequest, getRequests, getUsers } from '../services/requestService';
+import './RequestForm.css'; // Import the CSS file
 
 const RequestForm = ({ user }) => {
   const [message, setMessage] = useState('');
@@ -49,21 +50,23 @@ const RequestForm = ({ user }) => {
   };
 
   return (
-    <div>
-      <form onSubmit={sendRequest}>
-        <label>
+    <div className="request-form-container">
+      <form onSubmit={sendRequest} className="request-form">
+        <label className="form-label">
           Message:
           <input
             type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
+            className="form-input"
           />
         </label>
-        <label>
+        <label className="form-label">
           Select a user:
           <select
             value={recipient}
             onChange={(e) => setRecipient(e.target.value)}
+            className="form-select"
           >
             <option value="">Select a user</option>
             {users.map((user) => (
@@ -73,13 +76,13 @@ const RequestForm = ({ user }) => {
             ))}
           </select>
         </label>
-        <button type="submit">Send Request</button>
+        <button type="submit" className="form-button">Send Request</button>
       </form>
-      <div>
+      <div className="request-list-container">
         <h2>Requests</h2>
-        <ul>
+        <ul className="request-list">
           {requests.map((request) => (
-            <li key={request.id}>{request.message}</li>
+            <li key={request.id} className="request-item">{request.message}</li>
           ))}
         </ul>
       </div>
